@@ -1,25 +1,33 @@
+from http.client import NOT_FOUND
 from typing import List
 
 from fastapi import Depends, HTTPException
 
-from src.modules.users.users_model import UserDB
-
+from .users_model import UserDB
 from .users_repository import UsersRepository
 from .users_schema import CreateUser, PartialUser, User
 
 
 class UsersService:
+
     def __init__(self, users_repository: UsersRepository = Depends()):
         self.users_repository = users_repository
 
     def get_user(self, user_id) -> UserDB:
         user = self.users_repository.get_user(user_id)
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(NOT_FOUND, detail="User not found")
         return user
 
     def get_users(self) -> List[UserDB]:
         return self.users_repository.get_users()
+
+    def get_user_by_email(self, email: str) -> UserDB:
+        user = self.users_repository.find_user(
+            PartialUser.construct(email=email))
+        if not user:
+            raise HTTPException(NOT_FOUND, detail="User not found")
+        return user
 
     def get_users_pag(self, skip: int = 0, limit: int = 100):
         return self.users_repository.get_paginated_users(skip, limit)

@@ -10,7 +10,12 @@ class AllOptional(ModelMetaclass):
         annotations = namespaces.get('__annotations__', {})
         for base in bases:
             annotations.update(base.__annotations__)
-            while hasattr(base, '__base__') and base.__base__ not in [BaseModel, object, None]:
+            while hasattr(
+                    base,
+                    '__base__') and base.__base__ not in [
+                    BaseModel,
+                    object,
+                    None]:
                 base = base.__base__
                 annotations.update(base.__annotations__)
         for field in annotations:

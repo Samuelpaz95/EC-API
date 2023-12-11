@@ -14,7 +14,7 @@ database_url = "mysql+pymysql://{}:{}@{}:{}/{}".format(
 
 engine = create_engine(database_url)
 
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(autoflush=False, bind=engine)
 
 
 class Base(DeclarativeBase):
@@ -25,9 +25,7 @@ def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db
-    except Exception as e:
-        print(e)
+    except Exception as _:
         db.rollback()
     finally:
-        print("Closing DB connection")
         db.close()

@@ -15,6 +15,11 @@ class UsersRepository:
     def __init__(self, db: Session = Depends(get_db)):
         self.db = db
 
+    def find_user(self, filters: PartialUser) -> Optional[UserDB]:
+        query = self.db.query(UserDB)
+        query = query.filter_by(**filters.dict(exclude_unset=True))
+        return query.first()
+
     def get_user(self, user_id: int) -> Optional[UserDB]:
         return self.db.query(UserDB).where(UserDB.id == user_id).first()
 
@@ -24,9 +29,11 @@ class UsersRepository:
     def get_users(self, skip: int = 0, limit: int = 100) -> List[UserDB]:
         return self.db.query(UserDB).offset(skip).limit(limit).all()
 
-    def get_paginated_users(self, skip: int = 0, limit: int = 100) -> Paginated[UserDB]:
+    def get_paginated_users(
+            self,
+            skip: int = 0,
+            limit: int = 100) -> Paginated[UserDB]:
         users = self.db.query(UserDB).offset(skip).limit(limit).all()
-        print(users)
         count = self.db.query(UserDB).count()
         has_next = skip + limit < count
         return Paginated[UserDB](
@@ -40,7 +47,6 @@ class UsersRepository:
         )
 
     def create_user(self, user: CreateUser) -> UserDB:
-        user.password = user.password + "notreallyhashed"  # fake hashing
         db_user = UserDB(**user.dict())
         self.db.add(db_user)
         self.db.commit()

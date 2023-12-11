@@ -20,5 +20,5 @@ uvicorn main:app --reload --port 8000 # visit http://localhost:8000/docs
 - test the server
 
 ```bash
-pytest
+pytest -v
 ```
